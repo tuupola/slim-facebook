@@ -16,7 +16,7 @@ CREATE TABLE users (
 class User extends ActiveRecord\Model 
 {    
     static $has_many = array(
-        array("shares", "messages")
+        array("shares", "messages", "friends")
     );
 
     public function profileUrl() 

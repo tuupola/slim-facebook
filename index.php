@@ -46,6 +46,8 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections)
 
 $app->hook("slim.before", function() use ($facebook) {
     /* When using FB.ui("oauth", ...) */
+    /* Apparently FB.login() is now inline so this is not necessary */
+    /* anymore http://goo.gl/22sfO */ 
     if(isset($_REQUEST["session"])) {
         
         $session_data = json_decode($_REQUEST["session"], true);
@@ -159,6 +161,25 @@ $app->post("/messages", function() use ($app, $facebook) {
     //$message->user = $user; // This does not work.
     $message->user_id = $user->id; // REALLY?! WTF ActiveRecord?
     $message->save();
+    
+    $data["status"] = "ok";
+    
+    $app->contentType("application/json");
+    print json_encode($data);
+});
+
+/* User chose a friend */
+$app->post("/friends", function() use ($app, $facebook) {
+    /* Creates new user with uid, oauth_token and name if does not exist. */
+    /* If not logged in creates dummy user with uid = 0 */
+    $user = current_user();
+
+    /* Log message. */
+    $friend = new Friend();
+    $friend->uid = $app->request()->post("uid");
+    //$message->user = $user; // This does not work.
+    $friend->user_id = $user->id; // REALLY?! WTF ActiveRecord?
+    $friend->save();
     
     $data["status"] = "ok";
     

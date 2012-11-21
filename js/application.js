@@ -96,4 +96,54 @@ $(function() {
         return false;
     });
     
+    $("#login_select").bind("click", function(event) {
+        /* Ask for permissions. */
+        /* Apparently this is now also inline http://goo.gl/22sfO */
+        FB.login(function(response) {
+                        
+            if (response.authResponse) {
+                console.log("Logged in");
+                console.log(response.authResponse);
+                
+                var submit_data = { signed_request: response.authResponse.signedRequest,
+                                    oauth_token: response.authResponse.accessToken };
+                
+                TDFriendSelector.init({debug: false});
+                                
+                var selector = TDFriendSelector.newInstance({
+                    maxSelection    : 1,
+                    friendsPerPage  : 5,
+                    autoDeselection : true,
+                    callbackSubmit: function(selectedFriendIds) {
+                        
+                        /* Double check just in case. */
+                        if (1 == selectedFriendIds.length) {
+                            $.extend(submit_data, {uid: selectedFriendIds[0]});
+
+                            console.log(submit_data);
+
+                            $.post("/friends", submit_data, function(data) {
+                                console.log(data);
+                                if ("ok" == data.status) {
+                                    console.log("Friend save succeeded.");
+                                } else {
+                                    console.log("Friend save failed.");                                
+                                }
+                            }, "json");
+                        }
+                        
+                    }
+                });
+                
+                selector.showFriendSelector();
+            } else {
+                console.log("User cancelled login or did not fully authorize.");
+            }
+        });
+        
+        return false;
+    });
+    
+    
+    
 });
