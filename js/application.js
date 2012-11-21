@@ -1,6 +1,49 @@
 $(function() {
     
-    /* Ask permissions in a modal window. */
+    /* Ask permissions using FB.login(). */
+    /* Apparently this is now also inline modal http://goo.gl/22sfO */
+    /* and preferred since it does not cause flash of empty window. */
+    $("#login").bind("click", function(event) {
+        FB.login(function(response) {
+                        
+            if (response.authResponse) {
+                console.log(response.authResponse);
+                
+                var submit_data = { signed_request: response.authResponse.signedRequest,
+                                    oauth_token: response.authResponse.accessToken };
+                
+                
+                /* If you need to send some data. Add it via $.extend to */
+                /* submit_data object. */
+                $.extend(submit_data, {
+                    foo: "bar"
+                });
+
+                console.log(submit_data);
+
+                $.post("/entries", response, function(data) {
+                    console.log(data);
+                    if ("fail" === data.status) {
+                        console.log("Submitting entry failed");
+                    } else {
+                        console.log("Submitting entry ok");
+                        /* Reload the tab since we show new content.  */
+                        /* Ugly kludge. */
+                        //top.location.href = settings.tab_url;
+                        /* Better is to load something via AJAH call. */
+                    }
+                 }, "json");
+                
+            } else {
+                console.log("User cancelled login or did not fully authorize.");
+            }
+        });
+        
+        return false;
+    });
+    
+    /* Ask permissions using FB.ui({method: "oauth"}). */
+    /* This has always been inline modal. */
     $("#oauth").bind("click", function() {  
         var self = this;
 
@@ -41,7 +84,7 @@ $(function() {
         });
 
         return false;
-    });
+    });    
    
     /* Post to wall eg. share. */
     $("#feed").bind("click", function(event) {
@@ -143,7 +186,5 @@ $(function() {
         
         return false;
     });
-    
-    
     
 });
