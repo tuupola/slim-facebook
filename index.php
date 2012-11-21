@@ -16,7 +16,7 @@ $app->add(new Slim\Middleware\SessionCookie());
 $app->config(array(
     "client_id"     => "126680937488146",
     "client_secret" => "47011911ec9b48a02d3619611d788dbe",
-    "tab_url"       => "https://www.facebook.com/",
+    "tab_url"       => "https://www.facebook.com/pages/Loophole/306971553786?sk=app_126680937488146",
     "host"          => "slim-ar-facebook.taevas.com"
 ));
 
@@ -99,7 +99,11 @@ $app->hook("slim.before", function() use ($facebook) {
 });
 
 $app->map("/", function() use ($app, $facebook) {
-    print_r($facebook);
+    if (facebook_external_hit()) {
+        print "OHAI Facebook!";
+    } else {
+        $app->redirect($app->config("tab_url"));
+    }
 })->via("GET", "POST");
 
 $app->get("/install", function() use ($app, $facebook) {
@@ -223,4 +227,17 @@ function current_user_info() {
     }
     return $data;
 };
+
+/*
+function facebook_redirect($url) {
+    print '<script type="text/javascript">top.location.href=' . $url . '</script>';
+};
+*/
+
+function facebook_external_hit() {
+    global $app;
+    $user_agent = $app->request()->getUserAgent();
+    return false !== strpos($user_agent, "facebookexternalhit");
+};
+    
 
