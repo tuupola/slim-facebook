@@ -21,7 +21,7 @@ $(function() {
 
                 console.log(submit_data);
 
-                $.post("/entries", response, function(data) {
+                $.post("/entries", submit_data, function(data) {
                     console.log(data);
                     if ("fail" === data.status) {
                         console.log("Submitting entry failed");
