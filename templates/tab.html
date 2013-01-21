@@ -17,10 +17,14 @@
   <br />
   <a id="feed" href="#">Wallpost / share</a> | 
   <a id="send" href="#">Message</a>
+  <br />
+  <div class="fb-like" data-href="http://slim-ar-facebook.taevas.com" data-send="true" data-layout="button_count" data-width="450" data-show-faces="false"></div>
   
   <br />
   <br />
-  <a id="redirect" href="redirect">Redirect back here</a>
+  <a id="redirect" href="redirect">Redirect back here</a> | 
+  <a href="https://github.com/tuupola/slim-ar-facebook" target="_top">Fork me on GitHub</a>
+  
 
   <?php include "_friendselector.html" ?>
   
@@ -46,6 +50,31 @@
     });
 
     FB.Canvas.setAutoGrow();
+    
+    FB.Event.subscribe("edge.create", function(target) {
+        //_gaq.push(["_trackSocial", "facebook", "like", target]);
+        console.log("Callback for FB like:", target);
+    });
+    
+    FB.Event.subscribe("edge.remove", function(target) {
+      //_gaq.push(["_trackSocial", "facebook", "unlike", target]);
+      console.log("Callback for FB unlike:", target);
+    });
+    
+    FB.Event.subscribe("message.send", function(target) {
+      //_gaq.push(["_trackSocial", "facebook", "send", target]);
+      console.log("Callback for FB send:", target);
+    });
+    
+    FB.Event.subscribe("comment.create", function(target) {
+      //_gaq.push(["_trackSocial", "facebook", "comment", target]);
+      console.log("Callback for FB comment:", target);
+    });
+    
+    FB.Event.subscribe("comment.remove", function(target) {
+      //_gaq.push(["_trackSocial", "facebook", "remove comment", target]);
+      console.log("Callback for FB remove comment:", target);
+    })
   
   </script>
   

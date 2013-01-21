@@ -1,4 +1,5 @@
 $(function() {
+    "use strict";
     
     /* Ask permissions using FB.login(). */
     /* Apparently this is now also inline modal http://goo.gl/22sfO */
@@ -100,7 +101,8 @@ $(function() {
 
         FB.ui(share, function(response) {
             if (response && response.post_id) {
-                console.log(response);
+                console.log("Callback for FB share:", response);
+                //_gaq.push(["_trackSocial", "facebook", "share", response.post_id]);
                 /* Log wallpost for later use. */
                 var post_data = { post_id: response.post_id };
                 $.post("/shares", post_data, function(data) {
