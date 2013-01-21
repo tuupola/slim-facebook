@@ -103,8 +103,13 @@ $app->hook("slim.before", function() use ($facebook) {
 });
 
 $app->map("/", function() use ($app, $facebook) {
+    /* If Facebook scraper show content with og tags etc. */
     if (facebook_external_hit()) {
-        print "OHAI Facebook!";
+        $app->render("index.html", array(
+            "facebook" =>  $facebook,
+            "app" => $app
+        ));
+    /* If user who manually arrived here redirect to tab. */
     } else {
         $app->redirect($app->config("tab_url"));
     }
