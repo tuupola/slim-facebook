@@ -191,6 +191,10 @@ $app->post("/friends", function() use ($app, $facebook) {
     print json_encode($data);
 });
 
+$app->map("/redirect", function() use ($app, $facebook) {
+    facebook_redirect($app->config("tab_url"));
+})->via("GET", "POST");
+
 $app->run();
 
 /* Helpers */
@@ -228,11 +232,9 @@ function current_user_info() {
     return $data;
 };
 
-/*
 function facebook_redirect($url) {
-    print '<script type="text/javascript">top.location.href=' . $url . '</script>';
+    print '<script type="text/javascript">top.location.href="' . $url . '"</script>';
 };
-*/
 
 function facebook_external_hit() {
     global $app;
