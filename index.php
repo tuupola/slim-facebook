@@ -45,6 +45,10 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections)
 });
 
 $app->hook("slim.before", function() use ($facebook) {
+
+    /* IE has problems with crossdomain cookies. */
+    header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+    
     /* When using FB.ui("oauth", ...) */
     /* Apparently FB.login() is now inline so this is not necessary */
     /* anymore http://goo.gl/22sfO */ 
@@ -191,6 +195,7 @@ $app->post("/friends", function() use ($app, $facebook) {
     print json_encode($data);
 });
 
+/* Demonstrate redirect which jumps out of iframe. */
 $app->map("/redirect", function() use ($app, $facebook) {
     facebook_redirect($app->config("tab_url"));
 })->via("GET", "POST");
