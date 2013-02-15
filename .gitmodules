@@ -1,3 +1,0 @@
-[submodule "vendor/ActiveRecord"]
-	path = vendor/ActiveRecord
-	url = git@github.com:tuupola/php-activerecord.git
