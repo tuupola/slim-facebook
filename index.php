@@ -150,14 +150,14 @@ $app->post("/shares", function() use ($app, $facebook) {
     /* If not logged in creates dummy user with uid = 0 */
     $user = current_user();
 
-    /* Log share. */
+    /* Log share to local database. */
     $share = new Share();
     $share->post_id = $app->request()->post("post_id");
-    //$share->user = $user; // This does not work.
-    $share->user_id = $user->id; // REALLY?! WTF ActiveRecord?
+    $share->user = $user; 
     $share->save();
     
     $data["status"] = "ok";
+    $data["id"]     = $share->id;
     
     $app->contentType("application/json");
     print json_encode($data);
@@ -169,13 +169,13 @@ $app->post("/messages", function() use ($app, $facebook) {
     /* If not logged in creates dummy user with uid = 0 */
     $user = current_user();
 
-    /* Log message. */
+    /* Log share to local database. */
     $message = new Message();
-    //$message->user = $user; // This does not work.
-    $message->user_id = $user->id; // REALLY?! WTF ActiveRecord?
+    $message->user = $user; 
     $message->save();
-    
+
     $data["status"] = "ok";
+    $data["id"]     = $message->id;
     
     $app->contentType("application/json");
     print json_encode($data);
@@ -190,11 +190,11 @@ $app->post("/friends", function() use ($app, $facebook) {
     /* Log message. */
     $friend = new Friend();
     $friend->uid = $app->request()->post("uid");
-    //$message->user = $user; // This does not work.
-    $friend->user_id = $user->id; // REALLY?! WTF ActiveRecord?
+    $friend->user = $user;
     $friend->save();
     
     $data["status"] = "ok";
+    $data["id"]     = $friend->id;
     
     $app->contentType("application/json");
     print json_encode($data);
