@@ -8,17 +8,31 @@ date_default_timezone_set("Europe/Helsinki");
 
 set_include_path(get_include_path() . PATH_SEPARATOR . "./vendor");
 require "Slim/Slim.php";
+require "Slim/Extras/Log/DateTimeFileWriter.php";
 \Slim\Slim::registerAutoloader();
 
 /* Setup Slim */
-$app = new \Slim\Slim();
+$app = new \Slim\Slim(array(
+    "log.writer" => new \Slim\Extras\Log\DateTimeFileWriter(array(
+        "path" => "./logs",
+        "name_format" => "Y-m-d",
+        "date_format" => "Y-m-d H:i:s",
+        "message_format" => "%label% [%date%] %message%"
+    ))
+));
+
 $app->add(new Slim\Middleware\SessionCookie());
+
 $app->config(array(
     "client_id"     => "126680937488146",
     "client_secret" => "47011911ec9b48a02d3619611d788dbe",
     "tab_url"       => "https://www.facebook.com/pages/Loophole/306971553786?sk=app_126680937488146",
-    "host"          => "slim-ar-facebook.taevas.com"
+    "host"          => "slim-ar-facebook.taevas.com",
+    
+    "log.enabled"   => true,
+    "log.level"     => \Slim\Log::DEBUG
 ));
+
 
 /* Setup Facebook. Normally you should not commit these publicly. */
 /* This is just an demo app. */
@@ -45,7 +59,7 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections)
 });
 
 $app->hook("slim.before", function() use ($facebook) {
-
+  
     /* IE has problems with crossdomain cookies. */
     header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
     
@@ -119,7 +133,7 @@ $app->get("/install", function() use ($app, $facebook) {
    $app->render("install.html", array("app_id" =>  $facebook->getAppId())); 
 });
 
-$app->map("/tab", function() use ($app, $facebook) {
+$app->map("/tab", function() use ($app, $facebook) {    
     $app->render("tab.html", array(
         "facebook" =>  $facebook,
         "app" => $app
@@ -136,6 +150,11 @@ $app->post("/entries", function() use ($app, $facebook) {
     $user->foo = $app->request()->post("foo");
     $user->save();
     */
+    
+    /* Also log to a file. */
+    $message = sprintf("%s (%s) participated in campaign (%s)",
+                        $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
+    $app->getLog()->debug($message);
     
     $data["status"] = "ok";
     
@@ -155,6 +174,12 @@ $app->post("/shares", function() use ($app, $facebook) {
     $share->post_id = $app->request()->post("post_id");
     $share->user = $user; 
     $share->save();
+    
+    /* Also log to a file. */
+    $message = sprintf("%s (%s) made a Facebook share (%s)",
+                        $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
+    $app->getLog()->debug($message);
+    
     
     $data["status"] = "ok";
     $data["id"]     = $share->id;
@@ -177,6 +202,11 @@ $app->post("/messages", function() use ($app, $facebook) {
     $data["status"] = "ok";
     $data["id"]     = $message->id;
     
+    /* Also log to a file. */
+    $message = sprintf("%s (%s) sent a Facebook message (%s)",
+                        $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
+    $app->getLog()->debug($message);
+    
     $app->contentType("application/json");
     print json_encode($data);
 });
@@ -193,6 +223,13 @@ $app->post("/friends", function() use ($app, $facebook) {
     $friend->user = $user;
     $friend->save();
     
+    /* Also log to a file. */
+    $message = sprintf("%s (%s) and %s (%s) participated in campaign (%s)",
+                        $user->name, $user->uid, $friend->name, $friend->uid,
+                        $_SERVER["REMOTE_ADDR"]);
+    $app->getLog()->debug($message);
+    
+    
     $data["status"] = "ok";
     $data["id"]     = $friend->id;
     
@@ -208,6 +245,9 @@ $app->map("/redirect", function() use ($app, $facebook) {
 $app->run();
 
 /* Helpers */
+
+/* Creates new user with uid, oauth_token and name if does not exist. */
+/* If not logged in creates dummy user with uid = 0 */
 function current_user() {
     global $facebook;
     

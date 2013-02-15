@@ -18,7 +18,7 @@ class User extends ActiveRecord\Model
     static $has_many = array(
         array("shares", "messages", "friends")
     );
-
+        
     public function profileUrl() 
     {
         return "http://www.facebook.com/profile.php?id=" . $this->uid; 
