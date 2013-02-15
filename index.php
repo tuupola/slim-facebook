@@ -217,10 +217,14 @@ $app->post("/friends", function() use ($app, $facebook) {
     /* If not logged in creates dummy user with uid = 0 */
     $user = current_user();
 
-    /* Log message. */
+    /* Log message. */    
     $friend = new Friend();
     $friend->uid = $app->request()->post("uid");
     $friend->user = $user;
+
+    $data = user_info($friend->uid);
+    $friend->name = $data["name"];
+    
     $friend->save();
     
     /* Also log to a file. */
@@ -256,7 +260,7 @@ function current_user() {
 
     /* If did not exist before, create one with basic info. */
     if (is_null($user)) {
-        $data = current_user_info();
+        $data = user_info($uid);
         $user = new User();
         $user->uid  = $uid;
         $user->name = $data["name"];
@@ -268,13 +272,13 @@ function current_user() {
 };
 
 /* Facebook data for current user. False if fails. */
-function current_user_info() {
+function user_info($uid) {
     global $facebook;
     
     $data = false;
     if ($facebook->getUser()) {
         try {
-            $data = $facebook->api("/me");
+            $data = $facebook->api("/". $uid);
         } catch (FacebookApiException $e) {
             print_r($e);
         }
