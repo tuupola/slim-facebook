@@ -158,7 +158,7 @@ $app->post("/entries", function() use ($app, $facebook) {
     /* Also log to a file. */
     $message = sprintf("%s (%s) participated in campaign (%s)",
                         $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
-    $app->getLog()->debug($message);
+    $app->getLog()->info($message);
     
     $data["status"] = "ok";
     
@@ -182,7 +182,7 @@ $app->post("/shares", function() use ($app, $facebook) {
     /* Also log to a file. */
     $message = sprintf("%s (%s) made a Facebook share (%s)",
                         $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
-    $app->getLog()->debug($message);
+    $app->getLog()->info($message);
     
     
     $data["status"] = "ok";
@@ -209,7 +209,7 @@ $app->post("/messages", function() use ($app, $facebook) {
     /* Also log to a file. */
     $message = sprintf("%s (%s) sent a Facebook message (%s)",
                         $user->name, $user->uid, $_SERVER["REMOTE_ADDR"]);
-    $app->getLog()->debug($message);
+    $app->getLog()->info($message);
     
     $app->contentType("application/json");
     print json_encode($data);
@@ -235,7 +235,7 @@ $app->post("/friends", function() use ($app, $facebook) {
     $message = sprintf("%s (%s) and %s (%s) participated in campaign (%s)",
                         $user->name, $user->uid, $friend->name, $friend->uid,
                         $_SERVER["REMOTE_ADDR"]);
-    $app->getLog()->debug($message);
+    $app->getLog()->info($message);
     
     
     $data["status"] = "ok";
