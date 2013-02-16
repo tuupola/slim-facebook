@@ -316,6 +316,7 @@ abstract class Connection
 		if ($this->logging) {
 			$time = microtime(true) - $now;
 			$sql = preg_replace('/\s+/', ' ', $sql);
+			$sql = preg_replace('/ VALUES\(.*\)/', '', $sql);
 			if ($values) {
 				$values = array_map(function($v) {
 					if (is_null($v))
@@ -324,11 +325,11 @@ abstract class Connection
 						return "'".addslashes($v)."'";
 					return $v;
 				}, $values);
-				$data = ' ('.implode(',', $values).')';
+				$data = 'VALUES ('.implode(',', $values).') ';
 			} else {
 				$data = '';
 			}
-			$this->logger->log(sprintf("%s --%s %.3f", $sql, $data, $time));
+			$this->logger->log(sprintf("%s %s-- %.3f", $sql, $data, $time));
 		}
 
 		return $sth;
