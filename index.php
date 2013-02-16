@@ -9,6 +9,7 @@ date_default_timezone_set("Europe/Helsinki");
 set_include_path(get_include_path() . PATH_SEPARATOR . "./vendor");
 require "Slim/Slim.php";
 require "Slim/Extras/Log/DateTimeFileWriter.php";
+require "Slim/Extras/Log/ActiveRecordAdapter.php";
 \Slim\Slim::registerAutoloader();
 
 /* Setup Slim */
@@ -49,13 +50,16 @@ $connections = array(
     "production"  => "mysql://example:example@localhost/example_slim;charset=utf8"
 );
 
-ActiveRecord\Config::initialize(function($cfg) use ($connections)
+ActiveRecord\Config::initialize(function($cfg) use ($connections, $app)
 {
     $cfg->set_model_directory("models");
     $cfg->set_connections($connections);
     
     # Default connection is now production
     $cfg->set_default_connection("production");
+    
+    $cfg->set_logging(true);
+    $cfg->set_logger(new  \Slim\Extras\Log\ActiveRecordAdapter($app->getLog()));
 });
 
 $app->hook("slim.before", function() use ($facebook) {
