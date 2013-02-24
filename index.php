@@ -50,8 +50,7 @@ $connections = array(
     "production"  => "mysql://example:example@localhost/example_slim;charset=utf8"
 );
 
-ActiveRecord\Config::initialize(function($cfg) use ($connections, $app)
-{
+ActiveRecord\Config::initialize(function($cfg) use ($connections, $app) {
     $cfg->set_model_directory("models");
     $cfg->set_connections($connections);
     
@@ -59,7 +58,7 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections, $app)
     $cfg->set_default_connection("production");
     
     $cfg->set_logging(true);
-    $cfg->set_logger(new  \Slim\Extras\Log\ActiveRecordAdapter($app->getLog()));
+    $cfg->set_logger(new \Slim\Extras\Log\ActiveRecordAdapter($app->getLog(), \Slim\Log::DEBUG));
 });
 
 $app->hook("slim.before", function() use ($facebook) {
