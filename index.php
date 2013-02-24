@@ -8,9 +8,10 @@ date_default_timezone_set("Europe/Helsinki");
 
 set_include_path(get_include_path() . PATH_SEPARATOR . "./vendor");
 require "Slim/Slim.php";
+\Slim\Slim::registerAutoloader();
 require "Slim/Extras/Log/DateTimeFileWriter.php";
 require "Slim/Extras/Log/ActiveRecordAdapter.php";
-\Slim\Slim::registerAutoloader();
+require "Slim/Extras/MiddleWare/FacebookMethodFix.php";
 
 /* Setup Slim */
 $app = new \Slim\Slim(array(
@@ -23,6 +24,7 @@ $app = new \Slim\Slim(array(
 ));
 
 $app->add(new Slim\Middleware\SessionCookie());
+$app->add(new Slim\Extras\Middleware\FacebookMethodFix());
 
 $app->config(array(
     "client_id"     => "126680937488146",
@@ -119,7 +121,7 @@ $app->hook("slim.before", function() use ($facebook) {
     
 });
 
-$app->map("/", function() use ($app, $facebook) {
+$app->get("/", function() use ($app, $facebook) {
     /* If Facebook scraper show content with og tags etc. */
     if (facebook_external_hit()) {
         $app->render("index.html", array(
@@ -130,18 +132,18 @@ $app->map("/", function() use ($app, $facebook) {
     } else {
         $app->redirect($app->config("tab_url"));
     }
-})->via("GET", "POST");
+});
 
 $app->get("/install", function() use ($app, $facebook) {
    $app->render("install.html", array("app_id" =>  $facebook->getAppId())); 
 });
 
-$app->map("/tab", function() use ($app, $facebook) {    
+$app->get("/tab", function() use ($app, $facebook) {    
     $app->render("tab.html", array(
         "facebook" =>  $facebook,
         "app" => $app
     )); 
-})->via("GET", "POST");
+});
 
 /* User gave permissions to application. */
 $app->post("/entries", function() use ($app, $facebook) {
@@ -245,9 +247,9 @@ $app->post("/friends", function() use ($app, $facebook) {
 });
 
 /* Demonstrate redirect which jumps out of iframe. */
-$app->map("/redirect", function() use ($app, $facebook) {
+$app->get("/redirect", function() use ($app, $facebook) {
     facebook_redirect($app->config("tab_url"));
-})->via("GET", "POST");
+});
 
 $app->run();
 
