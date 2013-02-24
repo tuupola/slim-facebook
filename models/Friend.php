@@ -13,9 +13,8 @@ CREATE TABLE friends (
 
 */
 
-class Friend extends ActiveRecord\Model 
-{
-    
+class Friend extends ActiveRecord\Model {
+  
     static $belongs_to = array(
         array("user")
     );

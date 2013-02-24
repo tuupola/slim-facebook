@@ -12,9 +12,8 @@ CREATE TABLE shares (
 
 */
 
-class Share extends ActiveRecord\Model 
-{
-    
+class Share extends ActiveRecord\Model {
+
     static $belongs_to = array(
         array("user")
     );

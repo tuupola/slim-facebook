@@ -13,19 +13,16 @@ CREATE TABLE users (
 
 */
 
-class User extends ActiveRecord\Model 
-{    
+class User extends ActiveRecord\Model {
     static $has_many = array(
         array("shares", "messages", "friends")
     );
         
-    public function profileUrl() 
-    {
+    public function profileUrl() {
         return "http://www.facebook.com/profile.php?id=" . $this->uid; 
     }
 
-    public function imageUrl()
-    {
+    public function imageUrl() {
         return "https://graph.facebook.com/" . $this->uid . "/picture?type=square";  
     }
 }

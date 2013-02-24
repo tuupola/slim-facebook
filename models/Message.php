@@ -11,9 +11,8 @@ CREATE TABLE messages (
 
 */
 
-class Message extends ActiveRecord\Model 
-{
-    
+class Message extends ActiveRecord\Model {
+
     static $belongs_to = array(
         array("user")
     );
