@@ -138,7 +138,17 @@ $app->get("/install", function() use ($app, $facebook) {
    $app->render("install.html", array("app_id" =>  $facebook->getAppId())); 
 });
 
-$app->get("/tab", function() use ($app, $facebook) {    
+$app->get("/tab", function() use ($app, $facebook) {
+    $signed_request = $facebook->getSignedRequest();
+
+    /* If you need to like gate (yuck) you can do something like
+    if ($signed_request["page"]["liked"]) {
+        render liked tab
+    } else {
+        render not liked tab
+    }
+    */
+
     $app->render("tab.html", array(
         "facebook" =>  $facebook,
         "app" => $app
@@ -301,4 +311,3 @@ function facebook_external_hit() {
     return false !== strpos($user_agent, "facebookexternalhit");
 };
     
-
