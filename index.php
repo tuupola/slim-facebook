@@ -11,7 +11,7 @@ require "Slim/Slim.php";
 \Slim\Slim::registerAutoloader();
 require "Slim/Extras/Log/DateTimeFileWriter.php";
 require "Slim/Extras/Log/ActiveRecordAdapter.php";
-require "Slim/Extras/MiddleWare/FacebookMethodFix.php";
+//require "Slim/Extras/MiddleWare/FacebookMethodFix.php";
 
 /* Setup Slim */
 $app = new \Slim\Slim(array(
@@ -27,6 +27,9 @@ $app->add(new Slim\Middleware\SessionCookie());
 /* This middleware is currently broken. */
 //$app->add(new Slim\Extras\Middleware\FacebookMethodFix());
 
+
+/* Normally you should not commit these publicly. */
+/* This is just an demo app. */
 $app->config(array(
     "client_id"     => "126680937488146",
     "client_secret" => "47011911ec9b48a02d3619611d788dbe",
@@ -38,8 +41,7 @@ $app->config(array(
 ));
 
 
-/* Setup Facebook. Normally you should not commit these publicly. */
-/* This is just an demo app. */
+/* Setup Facebook. */
 require "Facebook/facebook.php";
 $facebook = new Facebook(array(
     "appId"  => $app->config("client_id"),
@@ -65,8 +67,6 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections, $app) {
 });
 
 $app->hook("slim.before", function() use ($facebook) {
-    
-    print_r($_POST);
   
     /* IE has problems with crossdomain cookies. */
     header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
@@ -141,8 +141,9 @@ $app->get("/install", function() use ($app, $facebook) {
    $app->render("install.html", array("app_id" =>  $facebook->getAppId())); 
 });
 
-/* TODO: Change back to GET when FacebookMethodFix middleware is fixed. */
-$app->post("/tab", function() use ($app, $facebook) {
+/* Facebook converts GET request to POST. Provide both for easier */
+/* development. */
+$app->map("/tab", function() use ($app, $facebook) {
     $signed_request = $facebook->getSignedRequest();
 
     /* If you need to like gate (yuck) you can do something like
@@ -157,7 +158,7 @@ $app->post("/tab", function() use ($app, $facebook) {
         "facebook" =>  $facebook,
         "app" => $app
     )); 
-});
+})->via("GET", "POST");
 
 /* User gave permissions to application. */
 $app->post("/entries", function() use ($app, $facebook) {
