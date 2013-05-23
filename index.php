@@ -24,7 +24,8 @@ $app = new \Slim\Slim(array(
 ));
 
 $app->add(new Slim\Middleware\SessionCookie());
-$app->add(new Slim\Extras\Middleware\FacebookMethodFix());
+/* This middleware is currently broken. */
+//$app->add(new Slim\Extras\Middleware\FacebookMethodFix());
 
 $app->config(array(
     "client_id"     => "126680937488146",
@@ -64,6 +65,8 @@ ActiveRecord\Config::initialize(function($cfg) use ($connections, $app) {
 });
 
 $app->hook("slim.before", function() use ($facebook) {
+    
+    print_r($_POST);
   
     /* IE has problems with crossdomain cookies. */
     header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
@@ -138,7 +141,8 @@ $app->get("/install", function() use ($app, $facebook) {
    $app->render("install.html", array("app_id" =>  $facebook->getAppId())); 
 });
 
-$app->get("/tab", function() use ($app, $facebook) {
+/* TODO: Change back to GET when FacebookMethodFix middleware is fixed. */
+$app->post("/tab", function() use ($app, $facebook) {
     $signed_request = $facebook->getSignedRequest();
 
     /* If you need to like gate (yuck) you can do something like
