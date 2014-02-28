@@ -1,0 +1,11 @@
+{
+    "repositories": [{
+        "type": "vcs",
+        "url": "https://github.com/tuupola/php-activerecord.git"
+    }],
+    "require": {
+        "slim/slim": "*",
+        "php-activerecord/php-activerecord": "dev-kadriorg",
+        "facebook/php-sdk": "dev-master"
+    }
+}
