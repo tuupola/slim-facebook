@@ -4,8 +4,9 @@
         "url": "https://github.com/tuupola/php-activerecord.git"
     }],
     "require": {
-        "slim/slim": "*",
+        "slim/slim": "2.*",
         "php-activerecord/php-activerecord": "dev-kadriorg",
-        "facebook/php-sdk": "dev-master"
+        "facebook/php-sdk": "dev-master",
+        "monolog/monolog": "1.*"
     }
 }
