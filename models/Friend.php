@@ -8,15 +8,15 @@ CREATE TABLE friends (
   name VARCHAR(255),
   created_at DATETIME,
   updated_at DATETIME,
-  user_id INTEGER UNSIGNED 
+  user_id INTEGER UNSIGNED
 );
 
 */
 
-class Friend extends ActiveRecord\Model {
-  
-    static $belongs_to = array(
-        array("user")
-    );
+class Friend extends Illuminate\Database\Eloquent\Model {
+
+    public function user() {
+        return $this->belongsTo("User");
+    }
 
 }

@@ -1,5 +1,7 @@
 <?php
 
+/* autossh -M 48485 -nNT -g -R "*:4567:127.0.0.1:8000" slim-ar-facebook.taevas.com */
+
 error_reporting(E_ALL);
 ini_set("display_errors","On");
 ini_set("display_startup_errors","On");
@@ -44,21 +46,25 @@ $facebook = new Facebook(array(
     "secret" => $app->config("client_secret")
 ));
 
-$connections = array(
-    "development" => "mysql://example:example@mysql.example.com/example_slim;charset=utf8",
-    "production"  => "mysql://example:example@localhost/example_slim;charset=utf8"
-);
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-ActiveRecord\Config::initialize(function($cfg) use ($connections, $app) {
-    $cfg->set_model_directory(__DIR__ . "/models");
-    $cfg->set_connections($connections);
+$capsule = new Capsule;
 
-    # Default connection is now production
-    $cfg->set_default_connection("production");
+$capsule->addConnection([
+    "driver"    => "mysql",
+    "host"      => "mysql.example.com",
+    "database"  => "example_slim",
+    "username"  => "example",
+    "password"  => "example",
+    "charset"   => "utf8",
+    "collation" => "utf8_unicode_ci",
+    "prefix"    => ""
+]);
 
-    //$cfg->set_logging(true);
-    //$cfg->set_logger(new \Slim\Extras\Log\ActiveRecordAdapter($app->getLog(), \Slim\Log::DEBUG));
-});
+$capsule->bootEloquent();
+
+User::find(8);
+print_r($capsule->getConnection()->getQueryLog());
 
 $app->hook("slim.before", function() use ($facebook) {
 
@@ -189,8 +195,7 @@ $app->post("/shares", function() use ($app, $facebook) {
     /* Log share to local database. */
     $share = new Share();
     $share->post_id = $app->request()->post("post_id");
-    $share->user = $user;
-    $share->save();
+    $share = $user->shares()->save($share);
 
     /* Also log to a file. */
     $message = sprintf("%s (%s) made a Facebook share (%s)",
@@ -213,8 +218,7 @@ $app->post("/messages", function() use ($app, $facebook) {
 
     /* Log share to local database. */
     $message = new Message();
-    $message->user = $user;
-    $message->save();
+    $message = $user->messages()->save($message);
 
     $data["status"] = "ok";
     $data["id"]     = $message->id;
@@ -235,14 +239,13 @@ $app->post("/friends", function() use ($app, $facebook) {
     $user = current_user();
 
     /* Log message. */
+
     $friend = new Friend();
     $friend->uid = $app->request()->post("uid");
-    $friend->user = $user;
 
     $data = user_info($friend->uid);
     $friend->name = $data["name"];
-
-    $friend->save();
+    $friend = $user->friends()->save($friend);
 
     /* Also log to a file. */
     $message = sprintf("%s (%s) and %s (%s) participated in campaign (%s)",
@@ -273,13 +276,11 @@ function current_user() {
     global $facebook;
 
     $uid  = $facebook->getUser();
-    $user = User::find_by_uid($uid);
+    $user = User::firstOrNew(array("uid" => $uid));
 
     /* If did not exist before, create one with basic info. */
-    if (is_null($user)) {
+    if (false === $user->exists) {
         $data = user_info($uid);
-        $user = new User();
-        $user->uid  = $uid;
         $user->name = $data["name"];
         $user->oauth_token = $_SESSION["access_token"];
         $user->save();

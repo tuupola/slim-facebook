@@ -5,8 +5,11 @@
     }],
     "require": {
         "slim/slim": "2.*",
-        "php-activerecord/php-activerecord": "dev-kadriorg",
+        "illuminate/database": "*",
         "facebook/php-sdk": "dev-master",
         "monolog/monolog": "1.*"
+    },
+    "autoload": {
+        "classmap": [ "models" ]
     }
 }

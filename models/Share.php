@@ -7,15 +7,15 @@ CREATE TABLE shares (
   post_id VARCHAR(255),
   created_at DATETIME,
   updated_at DATETIME,
-  user_id INTEGER UNSIGNED 
+  user_id INTEGER UNSIGNED
 );
 
 */
 
-class Share extends ActiveRecord\Model {
+class Share extends Illuminate\Database\Eloquent\Model {
 
-    static $belongs_to = array(
-        array("user")
-    );
+    public function user() {
+        return $this->belongsTo("User");
+    }
 
 }
