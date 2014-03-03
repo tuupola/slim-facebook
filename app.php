@@ -47,6 +47,8 @@ $facebook = new Facebook(array(
 ));
 
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Container\Container;
 
 $capsule = new Capsule;
 
@@ -61,10 +63,17 @@ $capsule->addConnection([
     "prefix"    => ""
 ]);
 
+$capsule->setEventDispatcher(new Dispatcher(new Container));
 $capsule->bootEloquent();
 
-User::find(8);
-print_r($capsule->getConnection()->getQueryLog());
+/*
+$capsule->getConnection()->listen(function($query, $bindings, $time, $name) {
+    print_r($query);
+    print_r($bindings);
+    print_r($time);
+    print_r($name);
+});
+*/
 
 $app->hook("slim.before", function() use ($facebook) {
 
