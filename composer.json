@@ -1,4 +1,5 @@
 {
+    "name": "tuupola/slim-facebook",
     "repositories": [{
         "type": "vcs",
         "url": "https://github.com/tuupola/php-activerecord.git"
